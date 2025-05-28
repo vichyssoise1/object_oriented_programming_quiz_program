@@ -28,3 +28,11 @@ class QuizBase:
                     # Skip any malformed lines
                     continue
         return question_records
+
+    def save_data(self, record: dict):
+        """
+        Append a single question record (dict) to the JSONL file.
+        """
+        with self.file_path.open("a", encoding="utf-8") as data_file:
+            json_line = json.dumps(record, ensure_ascii=False)
+            data_file.write(json_line + "\n")
