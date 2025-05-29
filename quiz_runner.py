@@ -22,14 +22,12 @@ class QuizRunner(QuizBase):
         Load questions, then run through them randomly.
         Each question has a time limit; tracks total and correct answers.
         """
-        # Display ASCII banner
-        banner_text = figlet_format("Quiz Time!", font="slant")
-        print(Fore.BLUE + banner_text)
+        # Banner
+        print(Fore.BLUE + figlet_format("Quiz Time!", font="slant"))
         print(Fore.MAGENTA + "Type 'exit' anytime to quit.\n")
 
-        # Load all questions
-        question_list = self.load_data()
-        if not question_list:
+        questions = self.load_data()
+        if not questions:
             print(Fore.RED + "❌ No questions found.")
             return
 
@@ -37,36 +35,48 @@ class QuizRunner(QuizBase):
         total_questions = 0
         correct_answers = 0
 
-        # Quiz loop
-        while len(asked_ids) < len(question_list):
-            question = random.choice(question_list)
-            question_id = id(question)
-            if question_id in asked_ids:
+        while len(asked_ids) < len(questions):
+            question = random.choice(questions)
+            qid = id(question)
+            if qid in asked_ids:
                 continue
-            asked_ids.add(question_id)
+            asked_ids.add(qid)
 
-            # Show question and options
+            # Display
             print(Fore.CYAN + "\n🧠 " + question["question"])
             for key, text in question["options"].items():
                 print(Fore.YELLOW + f"  {key}) {text}")
 
-            # Get user's answer with timeoutw
+            # Prompt with timeout, validating non‐blank
+            user_input = None
             try:
-                user_input = inputimeout(
+                raw = inputimeout(
                     prompt=Fore.MAGENTA + f"⏱️ Your answer ({self.timeout_seconds}s): ",
                     timeout=self.timeout_seconds
                 ).strip().lower()
-            except TimeoutOccurred:
-                user_input = None
-                print(Fore.RED + "\n⏰ Time's up!")
 
-            # Handle exit command
+                # Reprompt while blank or not in valid commands
+                valid_choices = set(question["options"].keys()) | {"exit"}
+                while raw not in valid_choices:
+                    print(Fore.RED + "Invalid choice. Enter a/b/c/d or 'exit'.")
+                    raw = inputimeout(
+                        prompt=Fore.MAGENTA + f"⏱️ Your answer ({self.timeout_seconds}s): ",
+                        timeout=self.timeout_seconds
+                    ).strip().lower()
+
+                user_input = raw
+
+            except TimeoutOccurred:
+                print(Fore.RED + "\n⏰ Time's up!")
+                # user_input stays None
+
+            # Handle exit
             if user_input == "exit":
                 break
 
             total_questions += 1
 
-            # Check answer and update score
+            # Scoring
             if user_input == question["answer"]:
                 correct_answers += 1
                 print(Fore.GREEN + "✅ Correct!")
