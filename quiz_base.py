@@ -8,10 +8,16 @@ class QuizBase:
     def __init__(self, filename="questions.txt"):
         """
         Base class for quiz programs.
-        Ensures the data file exists and stores its path.
+        Ensures the data file exists and stores its path relative to this script.
         """
-        self.file_path = Path(filename)
+        # Determine the directory where this file resides
+        base_directory = Path(__file__).parent
+        # Create the data file path relative to the script directory
+        self.file_path = base_directory / filename
+        # Ensure the data file exists
         self.file_path.touch(exist_ok=True)
+        # (Optional) Debug: show where it's creating the file
+        print(f"Data file path: {self.file_path.resolve()}")
 
     def load_data(self):
         """
@@ -25,7 +31,6 @@ class QuizBase:
                     record_data = json.loads(line)
                     question_records.append(record_data)
                 except json.JSONDecodeError:
-                    # Skip any malformed lines
                     continue
         return question_records
 
