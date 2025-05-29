@@ -25,18 +25,26 @@ class QuizCreator(QuizBase):
         print(Fore.MAGENTA + f"Questions will be saved to {self.file_path}\n")
 
         while True:
-            # Prompt for question text
-            print(Fore.YELLOW + "Enter your question (or type 'exit' to finish):")
-            question_text = input("> ").strip()
-            if question_text.lower() == "exit":
-                print(Fore.CYAN + "All questions saved. Goodbye!")
-                break
+            # Prompt for question text (must be non-empty)
+            question_text = ""
+            while not question_text:
+                print(Fore.YELLOW + "Enter your question (or type 'exit' to finish):")
+                question_text = input("> ").strip()
+                if question_text.lower() == "exit":
+                    print(Fore.CYAN + "All questions saved. Goodbye!")
+                    return
+                if not question_text:
+                    print(Fore.RED + "Question cannot be empty. Please type a question.")
 
-            # Prompt for four options a–d
+            # Prompt for four options a–d (each must be non-empty)
             options = {}
             for option_key in ["a", "b", "c", "d"]:
-                print(Fore.YELLOW + f"Option {option_key}:", end=" ")
-                option_text = input().strip()
+                option_text = ""
+                while not option_text:
+                    print(Fore.YELLOW + f"Option {option_key}:", end=" ")
+                    option_text = input().strip()
+                    if not option_text:
+                        print(Fore.RED + "Option text cannot be empty. Please enter something.")
                 options[option_key] = option_text
 
             # Prompt for correct answer
